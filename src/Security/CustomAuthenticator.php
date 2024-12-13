@@ -19,7 +19,12 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
     private $usuarioRepository;
     private EntityManagerInterface $EntityManagerInterface;
 
-    // Inyectar el UsuarioRepository y JWTTokenManager
+    /**
+     * Constructor para Inyectar EntityManagerInterface y UsuarioRepository
+     * 
+     * @param EntityManagerInterface $entityManagerInterface
+     * @param UsuarioRepository $UsuarioRepository
+     */
     public function __construct(EntityManagerInterface $entityManagerInterface, UsuarioRepository $usuarioRepository)
     {
         $this->EntityManagerInterface = $entityManagerInterface;
@@ -27,8 +32,18 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * Called on every request. Return whatever credentials you want to
-     * be passed to getUser() as $credentials.
+     * Este metodo verifica si hay un header con el nombre authorization
+     * @param Request $request
+     * @return bool
+     */
+    public function supports(Request $request)
+    {
+        return $request->headers->has('Authorization');
+    }
+
+    /**
+     * Si es verdadero el valor retornado por supports 
+     * getCredentials es usado internamente por symfony para extraer el token
      *
      * @param Request $request
      * @return array
@@ -37,41 +52,58 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
     {
         $token = $request->headers->get('Authorization');
 
-        // Verificar si el token está presente
         if (!$token || strpos($token, 'Bearer ') !== 0) {
             throw new AuthenticationException('Token no encontrado o mal formado');
         }
 
-        // Extraer el token
+        $token = str_replace('Bearer ','', $token);
+
         return [
-            'token' => substr($token, 7) // quitar "Bearer " del comienzo
+            'token' => trim($token)
         ];
     }
 
     /**
-     * Método requerido para iniciar la autenticación
+     * Método requerido para iniciar la autenticación ya que no se encuentra autenticado
+     * 
+     * @param Request $request
+     * @param AuthenticationException $authException
+     * 
+     * @return JsonResponse
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        // Generalmente rediriges al usuario o retornas un mensaje de error
+        $data = [
+            'success' => 0,
+            'message' => 'Authentication Required'
+        ];
+
+        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+
     }
 
+    /**
+     * Con este metodo asociaremos correctamente el token con el usuario del sistema
+     * 
+     * @param array $credentials
+     * @param UserProviderInterface $userProvider
+     * 
+     * @return UserInterface
+     */
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         $token = $credentials['token'];
 
         try {
-            // Decodificar y validar el token JWT
             $data = $this->jwtManager->decodeFromJsonWebToken($token);
 
-            dd($data, 'hola');
-            $userId = $data['id'] ?? null; // Suponiendo que el JWT contiene el user_id
+            dd($data, 'test');
+            $userId = $data['id'] ?? null;
 
             if (!$userId) {
-                throw new AuthenticationException('Token inválido: no contiene un user_id');
+                throw new AuthenticationException('Token inválido: no contiene parametro id');
             }
 
-            // Buscar el usuario en la base de datos
             $usuario = $this->usuarioRepository->find($userId);
 
             if (!$usuario) {
@@ -79,44 +111,58 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
             }
 
             return $usuario;
-
         } catch (\Exception $e) {
             throw new AuthenticationException('Token inválido: ' . $e->getMessage());
         }
     }
 
     /**
-     * Verificar las credenciales del usuario (en este caso no hacemos nada más, ya que el token es suficiente)
+     * Se require si se usa otro metodo de autenticacion. en este caso solo para token se retorna true
+     * 
+     * @param array $credentials
+     * @param UserInterface $user
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return true; // No necesitamos verificar las credenciales si el token es válido
+        return true;
     }
 
+    /**
+     * Si no fue posible autenticar se retorna el mensaje del error.
+     * 
+     * @param array $credentials
+     * @param UserInterface $user
+     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
         $data = [
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-            'logout'  => 1
+            'success'  => 0
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
+    /**
+     * No es necesario retornar algo ya que la solicitud si es exitosa pasa derecho al endpoint destino
+     * 
+     * @param Request $request
+     * @param TokenInterface $token
+     * @param string $providerKey
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
         return null;
     }
 
-    public function supports(Request $request)
-    {
-        // Verifica si esta autenticación debe ser utilizada (cuando haya un Authorization header)
-        return $request->headers->has('Authorization');
-    }
-
+    /**
+     * Este metodo se utiliza para recordar la sesion activa del funcionario, por ahora 
+     * lo dejamos desahiblitado para esta aplicacion
+     * 
+     * @return bool
+     */
     public function supportsRememberMe(): bool
     {
         return false;
     }
-
 }

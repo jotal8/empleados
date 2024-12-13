@@ -39,10 +39,26 @@ class UsuarioRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Busca con la llave primaria el registro en la db
+     */
     public function findById($value): ?Usuario
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.id = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * Busca por el Correo del usuario en la db
+     */
+    public function findByEmail($value): ?Usuario
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.correo = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult()
