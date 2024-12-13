@@ -5,10 +5,12 @@ namespace App\Entity;
 use App\Repository\UsuarioRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+
 /**
  * @ORM\Entity(repositoryClass=UsuarioRepository::class)
  */
-class Usuario
+class Usuario implements UserInterface
 {
     /**
      * @ORM\Id
@@ -106,4 +108,30 @@ class Usuario
 
         return $this;
     }
+
+    public function __call($name, $arguments)
+    {
+        return $this->getId();
+    }
+
+    public function getUsername(): string
+    {
+        return "";
+    }
+
+    public function getRoles(): array
+    {
+        return ['ROLE_USER'];
+    }
+
+    public function getSalt()
+    {
+        // TODO: Implement getSalt() method.
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
 }

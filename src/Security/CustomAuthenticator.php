@@ -17,13 +17,13 @@ use App\Repository\UsuarioRepository;
 class CustomAuthenticator extends AbstractGuardAuthenticator
 {
     private $usuarioRepository;
-    private $jwtManager;
+    private EntityManagerInterface $EntityManagerInterface;
 
     // Inyectar el UsuarioRepository y JWTTokenManager
-    public function __construct(UsuarioRepository $usuarioRepository, JWTTokenManagerInterface $jwtManager)
+    public function __construct(EntityManagerInterface $entityManagerInterface, UsuarioRepository $usuarioRepository)
     {
+        $this->EntityManagerInterface = $entityManagerInterface;
         $this->usuarioRepository = $usuarioRepository;
-        $this->jwtManager = $jwtManager;
     }
 
     /**
@@ -103,7 +103,7 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
-    public function onAuthenticationSuccess(Request $request, UserInterface $user, string $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
         return null;
     }
