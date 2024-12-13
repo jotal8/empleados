@@ -1,10 +1,20 @@
 doctrine:
     dbal:
-        url: '%env(resolve:DATABASE_URL)%'
+        dbname: "%env(resolve:APP_DATABASE_DB)%"
+        user: "%env(resolve:APP_DATABASE_USER)%"
+        password: "%env(resolve:APP_DATABASE_PASS)%"
+        host: "%env(resolve:APP_DATABASE_HOST)%"
+        port: "%env(resolve:APP_DATABASE_PORT)%"
+        driver: pdo_mysql
+        wrapper_class: \Doctrine\DBAL\Connection
+        charset: utf8mb4
+        mapping_types:
+          enum: string
+        default_table_options:
+          charset: utf8mb4
+          collate: utf8mb4_general_ci
+          engine: InnoDB
 
-        # IMPORTANT: You MUST configure your server version,
-        # either here or in the DATABASE_URL env var (see .env file)
-        #server_version: '16'
         use_savepoints: true
     orm:
         auto_generate_proxy_classes: true
