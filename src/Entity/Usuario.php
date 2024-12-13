@@ -40,6 +40,11 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     private $password;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $rol;
+
+    /**
      * @ORM\Column(type="integer")
      */
     private $estado;
@@ -93,6 +98,18 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function getRol(): ?string
+    {
+        return $this->rol;
+    }
+
+    public function setRol(string $rol): self
+    {
+        $this->rol = $rol;
 
         return $this;
     }

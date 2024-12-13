@@ -60,6 +60,7 @@ class InstallCommand extends Command
         $Usuario->setCorreo($email);
         $Usuario->setEstado(1);
         $Usuario->setPassword($password);
+        $Usuario->setRol('Administrador');
 
         $UsuarioRepository->add($Usuario, true);
 
