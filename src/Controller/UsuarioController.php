@@ -10,6 +10,8 @@ use App\Services\UsuarioService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Connection;
 use App\Entity\Usuario;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Exception;
 
 
@@ -37,8 +39,11 @@ class UsuarioController extends AbstractController
     {
         $response = [
             'message' => '',
-            'success' => false
+            'success' => false,
+            'emailSent'   => false
         ];
+
+        $Connection->beginTransaction();
 
         try{
             $email = $Request->get('correo');
@@ -56,12 +61,50 @@ class UsuarioController extends AbstractController
             $attributes = $UsuarioRepository->processRequest($Request->request->all());
             $Connection->insert('usuario', $attributes);
 
+            $response['emailSent'] = $this->callEmailService(
+                "{$attributes['nombres']} {$attributes['apellidos']}", 
+                $attributes['password'],
+                $Request->headers->get('Authorization')
+            );
+
+            $Connection->commit();
             $response['message'] = 'Se ha creado el usuario correctamente!';
             $response['success'] = true;
         }catch(throwable $th){
+            $Connection->rollBack();
             $response['message'] = $th->getMessage();
         }
 
         return $this->json($response);
+    }
+
+    private function callEmailService($name, $password, $token)
+    {
+        $Client = new Client();
+
+        try {
+            $headers = [
+                'Authorization' => $token
+            ];
+
+            $params = [
+                'name' => $name,
+                'password' => $password
+            ];
+
+            $clientRequest = $Client->request('POST', 'email-service:5000/sendEmail', [
+                'verify'      => false,
+                'headers'     => $headers,
+                'form_params' => $params
+            ]);
+
+            $response = $clientRequest->getBody();
+            $responseData = json_decode($response);
+        }catch(throwable $th){
+            return false;
+            dd($th);
+        }
+
+        return $responseData->success;
     }
 }
