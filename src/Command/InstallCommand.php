@@ -10,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Services\GlobalContainer;
+use Symfony\Component\Dotenv\Dotenv;
 use App\Entity\Usuario;
 
 /**
@@ -36,8 +38,9 @@ class InstallCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        (new Dotenv())->bootEnv(dirname(__DIR__) . '/../.env');
+
         $io = new SymfonyStyle($input, $output);
-        
         $Usuario = new Usuario();
 
         $email = 'administrador@correo.com';

@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use throwable;
 use App\Entity\Usuario;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -9,10 +10,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use App\Repository\UsuarioRepository;
+use App\Services\JwtService;
+
 
 class CustomAuthenticator extends AbstractGuardAuthenticator
 {
@@ -50,12 +54,13 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request): array
     {
+       
         $token = $request->headers->get('Authorization');
 
         if (!$token || strpos($token, 'Bearer ') !== 0) {
-            throw new AuthenticationException('Token no encontrado o mal formado');
+            throw new CustomUserMessageAuthenticationException('Token no encontrado o mal formado');
         }
-
+        
         $token = str_replace('Bearer ','', $token);
 
         return [
@@ -75,7 +80,7 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
     {
         $data = [
             'success' => 0,
-            'message' => 'Authentication Required'
+            'message' => 'Autenticacion requerida'
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
@@ -93,26 +98,15 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         $token = $credentials['token'];
-
         try {
-            $data = $this->jwtManager->decodeFromJsonWebToken($token);
-
-            dd($data, 'test');
-            $userId = $data['id'] ?? null;
-
-            if (!$userId) {
-                throw new AuthenticationException('Token inválido: no contiene parametro id');
-            }
-
-            $usuario = $this->usuarioRepository->find($userId);
-
-            if (!$usuario) {
-                throw new AuthenticationException('Usuario no encontrado');
-            }
-
+            $userId = JwtService::getUserId($token);
+            $usuario = $this->usuarioRepository->findById($userId);
+  
             return $usuario;
-        } catch (\Exception $e) {
-            throw new AuthenticationException('Token inválido: ' . $e->getMessage());
+        } catch (throwable $th) {
+            throw new CustomUserMessageAuthenticationException(
+                $th->getMessage() ?? 'Token no encontrado o mal formado'
+            );
         }
     }
 

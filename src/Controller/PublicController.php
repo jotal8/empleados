@@ -66,7 +66,7 @@ class PublicController extends AbstractController
             $token = JwtService::create([
                 'id'   => $Usuario->getId(),
                 'rol' => $Usuario->getRol()
-            ], 30);
+            ], 3600);
 
             $response = [
                 'message' => 'Login exitoso!!',
