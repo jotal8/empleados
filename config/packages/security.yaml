@@ -16,10 +16,10 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-
             guard:
                 authenticators:
                     - App\Security\CustomAuthenticator
+            stateless: true
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -34,7 +34,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: '^/api/([\w-]+/)?public(/.*$)?', roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: '^/api/public(/.*$)?', roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api|^/[ a-zA-Z/ ], roles: ROLE_USER }
 

@@ -42,6 +42,16 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=255)
      */
+    private $cargo;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $fecha_nacimiento;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
     private $rol;
 
     /**
@@ -101,7 +111,31 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    
+    public function getCargo(): ?string
+    {
+        return $this->cargo;
+    }
 
+    public function setCargo(string $cargo): self
+    {
+        $this->cargo = $cargo;
+
+        return $this;
+    }
+
+    public function getFechaNacimiento(): ?\DateTimeInterface
+    {
+        return $this->fecha_nacimiento;
+    }
+
+    public function setFechaNacimiento(\DateTimeInterface $fecha_nacimiento): self
+    {
+        $this->fecha_nacimiento = $fecha_nacimiento;
+
+        return $this;
+    }
+    
     public function getRol(): ?string
     {
         return $this->rol;

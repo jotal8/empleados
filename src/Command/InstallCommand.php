@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Services\GlobalContainer;
 use Symfony\Component\Dotenv\Dotenv;
 use App\Entity\Usuario;
+use DateTime;
 
 /**
  * Comando que instala la informacion inicial de la aplicacion en la base de datos
@@ -63,7 +64,11 @@ class InstallCommand extends Command
         $Usuario->setCorreo($email);
         $Usuario->setEstado(1);
         $Usuario->setPassword($password);
+        $Usuario->setCargo('System');
         $Usuario->setRol('Administrador');
+
+        $Date = new DateTime();
+        $Usuario->setFechaNacimiento($Date);
 
         $UsuarioRepository->add($Usuario, true);
 

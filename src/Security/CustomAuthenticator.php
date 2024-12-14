@@ -40,7 +40,7 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
      * @param Request $request
      * @return bool
      */
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
         return $request->headers->has('Authorization');
     }
@@ -54,7 +54,6 @@ class CustomAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request): array
     {
-       
         $token = $request->headers->get('Authorization');
 
         if (!$token || strpos($token, 'Bearer ') !== 0) {
