@@ -43,7 +43,6 @@ class PublicController extends AbstractController
            'success' => false,
            'token' => ''
         ];
-
         try{
             $email = $Request->get('email');
             $password = $Request->get('password');
