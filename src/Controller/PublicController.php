@@ -70,7 +70,11 @@ class PublicController extends AbstractController
             $response = [
                 'message' => 'Login exitoso!!',
                 'success' => true,
-                'token' => $token
+                'token'   => $token,
+                'data'    => [
+                    'nombre' => "{$Usuario->getNombres()} {$Usuario->getApellidos()}",
+                    'rol'     => $Usuario->getRol()
+                ]
             ];
         }catch (throwable $th){
             $response['message'] = $th->getMessage();
