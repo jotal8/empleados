@@ -130,4 +130,66 @@ class UsuarioRepository extends ServiceEntityRepository
 
         return $list;
     }
+
+    /**
+     * Busca todos los empleados creados
+     * 
+     * @return array
+     */
+    public function findAll(): ?array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.estado = 1')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * Busca todos los empleados creados
+     * 
+     * @return array
+     */
+    public function deleteById(int $id): void
+    {
+        $newEmailIdentificator = sprintf(
+            '%s_eliminado',
+            rand(0,1000000000)
+        );
+
+        $this->createQueryBuilder('u')
+            ->update()
+            ->set('u.estado', 0)
+            ->set('u.correo', ':identificator')
+            ->where('u.id = :val')
+            ->setParameter('val', $id)
+            ->setParameter('identificator', $newEmailIdentificator)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * Funcion para editar un usuario
+     * 
+     * @param $id
+     * @param $attributes
+     */
+    public function editUser($id, $attributes){
+        $this->createQueryBuilder('u')
+            ->update()
+            ->set('u.nombres', ':nombres')
+            ->set('u.apellidos', ':apellidos')
+            ->set('u.correo', ':correo')
+            ->set('u.fecha_nacimiento', ':fecha_nacimiento')
+            ->set('u.cargo', ':cargo')
+            ->where('u.id = :val')
+            ->setParameter('nombres', $attributes['nombres'])
+            ->setParameter('apellidos', $attributes['apellidos'])
+            ->setParameter('correo', $attributes['correo'])
+            ->setParameter('fecha_nacimiento', $attributes['fecha_nacimiento'])
+            ->setParameter('cargo', $attributes['cargo'])
+            ->setParameter('val', $id)
+            ->getQuery()
+            ->execute();
+    }
 }
