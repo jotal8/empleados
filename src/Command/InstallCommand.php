@@ -44,7 +44,7 @@ class InstallCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $Usuario = new Usuario();
 
-        $email = 'administrador@correo.com';
+        $email = 'unow@correo.com';
         $password = $this->passwordHasher->hashPassword(
             $Usuario,
             'holamundo'
