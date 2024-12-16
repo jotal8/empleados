@@ -72,8 +72,9 @@ class PublicController extends AbstractController
                 'success' => true,
                 'token'   => $token,
                 'data'    => [
-                    'nombre' => "{$Usuario->getNombres()} {$Usuario->getApellidos()}",
-                    'rol'     => $Usuario->getRol()
+                    'nombre'  => "{$Usuario->getNombres()} {$Usuario->getApellidos()}",
+                    'rol'     => $Usuario->getRol(),
+                    'id'      => $Usuario->getId()
                 ]
             ];
         }catch (throwable $th){

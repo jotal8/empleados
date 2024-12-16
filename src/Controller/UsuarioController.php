@@ -52,7 +52,8 @@ class UsuarioController extends AbstractController
                     'cargo'     =>  $Usuario->getCargo(),
                     'id'        =>  $Usuario->getId(),
                     'nacimiento'=>  $Usuario->getFechaNacimiento()->format('Y-m-d'),
-                    'correo'    =>  $Usuario->getCorreo()
+                    'correo'    =>  $Usuario->getCorreo(),
+                    'rol'       => $Usuario->getRol()
                 ];
             }
 
