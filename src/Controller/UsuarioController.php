@@ -239,6 +239,7 @@ class UsuarioController extends AbstractController
             $response['emailSent'] = $response['emailSent'] = CallEmailService::request(
                 "{$attributes['nombres']} {$attributes['apellidos']}", 
                 $attributes['password'],
+                $attributes['correo'],
                 $Request->headers->get('Authorization')
             );
 

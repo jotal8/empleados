@@ -17,7 +17,7 @@ class CallEmailService{
      * @param string $password,
      * @param string $token
      */
-    public static function request($name, $password, $token): string
+    public static function request($name, $password, $correo, $token): string
     {
         $Client = new Client();
 
@@ -28,13 +28,14 @@ class CallEmailService{
 
             $params = [
                 'name' => $name,
-                'password' => $password
+                'password' => $password,
+                'correo'  => $correo
             ];
 
             $clientRequest = $Client->request('POST', 'email-service:5000/sendEmail', [
                 'verify'      => false,
                 'headers'     => $headers,
-                'form_params' => $params
+                'json'        => json_encode($params)
             ]);
 
             $response = $clientRequest->getBody();
