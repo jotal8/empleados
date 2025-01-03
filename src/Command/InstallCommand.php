@@ -51,7 +51,10 @@ class InstallCommand extends Command
             'holamundo'
         );
 
-        $this->createUser($Usuario, 'Administrador', 'N/A', $email, $password, 'Administrador');
+        if(!$this->createUser($Usuario, 'Administrador', 'N/A', $email, $password, 'Administrador')){
+            $io->success('Ya se encuentra la instalacion inicial ejecutada!');
+            return Command::INVALID;
+        }
 
         //Usuario basico
         $Usuario2 = new Usuario();
@@ -61,22 +64,23 @@ class InstallCommand extends Command
             'holamundo'
         );
 
-        $this->createUser($Usuario2, 'Administrador', 'N/A', $email, $password, 'Usuario');
+        if(!$this->createUser($Usuario2, 'Administrador', 'N/A', $email, $password, 'Usuario')){
+            $io->success('Ya se encuentra la instalacion inicial ejecutada!');
+            return Command::INVALID;
+        }
 
         $io->success('Se ha instalado correctamente!');
 
         return Command::SUCCESS;
     }
 
-    private function createUser(Usuario $Usuario, string $nombres, string $apellidos,string $email, string $password, string $rol): void
+    private function createUser(Usuario $Usuario, string $nombres, string $apellidos,string $email, string $password, string $rol): bool
     {
         $UsuarioRepository = $this->entityManager->getRepository(Usuario::class);
         $hasUser = $UsuarioRepository->findByEmail($email);
 
         if($hasUser){
-            $io->success('Ya se encuentra la instalacion inicial ejecutada!');
-
-            return Command::INVALID;
+            return false;
         }
 
         $Usuario->setNombres('Administrador');
@@ -91,5 +95,7 @@ class InstallCommand extends Command
         $Usuario->setFechaNacimiento($Date);
 
         $UsuarioRepository->add($Usuario, true);
+
+        return true;
     }
 }
