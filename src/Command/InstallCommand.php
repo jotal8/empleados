@@ -44,12 +44,32 @@ class InstallCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $Usuario = new Usuario();
 
+        //Usuario administrador
         $email = 'unow@correo.com';
         $password = $this->passwordHasher->hashPassword(
             $Usuario,
             'holamundo'
         );
 
+        $this->createUser($Usuario, 'Administrador', 'N/A', $email, $password, 'Administrador');
+
+        //Usuario basico
+        $Usuario2 = new Usuario();
+        $email = 'usuario@correo.com';
+        $password = $this->passwordHasher->hashPassword(
+            $Usuario2,
+            'holamundo'
+        );
+
+        $this->createUser($Usuario2, 'Administrador', 'N/A', $email, $password, 'Usuario');
+
+        $io->success('Se ha instalado correctamente!');
+
+        return Command::SUCCESS;
+    }
+
+    private function createUser(Usuario $Usuario, string $nombres, string $apellidos,string $email, string $password, string $rol): void
+    {
         $UsuarioRepository = $this->entityManager->getRepository(Usuario::class);
         $hasUser = $UsuarioRepository->findByEmail($email);
 
@@ -65,15 +85,11 @@ class InstallCommand extends Command
         $Usuario->setEstado(1);
         $Usuario->setPassword($password);
         $Usuario->setCargo('System');
-        $Usuario->setRol('Administrador');
+        $Usuario->setRol($rol);
 
         $Date = new DateTime();
         $Usuario->setFechaNacimiento($Date);
 
         $UsuarioRepository->add($Usuario, true);
-
-        $io->success('Se ha instalado correctamente!');
-
-        return Command::SUCCESS;
     }
 }

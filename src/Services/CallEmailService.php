@@ -35,7 +35,7 @@ class CallEmailService{
             $clientRequest = $Client->request('POST', 'email-service:5000/sendEmail', [
                 'verify'      => false,
                 'headers'     => $headers,
-                'json'        => json_encode($params)
+                'json'        => $params
             ]);
 
             $response = $clientRequest->getBody();
